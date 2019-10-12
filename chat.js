@@ -6,10 +6,11 @@ var server=require('http').createServer(app);
 
 users=[]
 connections=[]
+user_and_room=[]
 
 var io=require('socket.io').listen(server);
 
-server.listen(process.env.PORT || 3000);
+server.listen(process.env.PORT || 8080);
 
 //console.log("created")
 
@@ -37,13 +38,36 @@ io.sockets.on('connection',function(socket){
 
     socket.on('new login',function(data,callback){
         callback(true);
-        socket.username=data;
-        users.push(data);
+        socket.username=data.username;
+        users.push(data.username);
+        socket.roomId=data.room;
+        //console.log(socket.roomId);
         //io.sockets.emit('take users',{username:users});
+        var flag=1;
+        for(var i=0;i<user_and_room.length;i++){
+            if (user_and_room[i].key==data.room){
+                user_and_room[i].member.push(data.username);
+                r=i;
+                flag=0;
+            }
+        }
+        user_and_room.push({
+            key:data.room,
+            member:[data.username]
+        });
+        if(flag==0){
+            members=user_and_room[r].member;
+        }
+        else{
+            members=user_and_room[user_and_room.length-1].member;
+        }
+        socket.members=members;
+        console.log(socket.members);
+        
         updataUsername();
-    })
+    });
     function updataUsername(){
-        io.sockets.emit('take users',{username:users});
+        io.sockets.emit('take users',{username:socket.members,room:socket.roomId});
     }
 
     

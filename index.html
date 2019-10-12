@@ -12,12 +12,30 @@
 <style>
     body{
         margin-top:50px;
+        background:white;
+    }
+    .flex-container{
+        display:flex;
+        justify-content: center;
+    }
+    .flex-container > div{
+        width: 350px;
+        height: 200px;
+        margin:120px;
+        background-color: rgb(230, 195, 195);
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-top: 15px;
     }
     #messageArea{
         display:none;
     }
+    #roomID{
+        text-align: center;
+    }
 </style>
 <body>
+    <h1 class="text-success" style="text-align: center;">Simple Chat App using WebRTC</h1>
     <div class="container">
         <div class="row" id="userFormArea">
             <div class="col-md-12">
@@ -25,12 +43,17 @@
                     <div class="form-group">
                         <label>Enter Username</label>
                         <input class="form-control" id="username"><br>
+                        <label>Enter Room ID</label>
+                        <input class="form-control" id="room"><br>
                         <input type="submit" value="Login" class="btn btn-primary">
                     </div>
                 </form>
             </div>
         </div>
         <div id="messageArea" class="row">
+            <div id="roomID">
+    
+            </div>
             <div class="col-md-4">
                 <div class="well">
                     <h2>Online Users</h2>
@@ -48,6 +71,20 @@
                 </form>
             </div>
         </div>
+        <div class="flex-container">
+            <div class="text1">
+                <h1>Instructions</h1>
+                <p>Enter your username first and then enter the room number you want to join or create</p>
+            </div>
+            <div class="text1">
+                    <h1>Instructions</h1>
+                    <p>Enter your username first and then enter the room number you want to join or create</p>
+            </div>
+            <div class="text1">
+                    <h1>Instructions</h1>
+                    <p>Enter your username first and then enter the room number you want to join or create</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -61,6 +98,9 @@
             var $username=$('#username');
             var $userForm=$('#userForm');
             var $users=$('#users');
+            var $room=$('#room');
+            var $roomId=$('#roomID');
+            var $flex=$('.flex-container');
 
             $messageForm.submit(function(e){
                 //console.log("Hi");
@@ -72,19 +112,21 @@
 
             $userForm.submit(function(e){
                 e.preventDefault()
-                socket.emit('new login',$username.val(),function(data){
+                socket.emit('new login',{username:$username.val(),room:$room.val()},function(data){
                     if(data){
                         $userFormArea.hide();
+                        $flex.hide();
                         $messageArea.show();
                     }
                 });
                 console.log($username.val());
                 $username.val('');
+                $room.val('');
             });
 
             socket.on('new message',function(data){
                 //console.log("Hi Shashank");
-                console.log(data.msg);
+                //console.log(data.msg);
                 $chat.append('<div class="well">'+data.username+': '+data.msg+'</div>');  
             });
 
@@ -94,6 +136,8 @@
                     list_of_users+='<li class="list-group-item">'+data.username[i]+'</li>';
                 }
                 $users.html(list_of_users);
+                //console.log(data.room);
+                $roomId.html('<h1 class="text-success">'+'Welcome To Room' +data.room+'</h1>');
             })
         })
     </script>
